@@ -1,0 +1,25 @@
+load("@rules_go//go:def.bzl", "go_library")
+load("//private/mgmtapi:api.bzl", "openapi_generate_go")
+
+openapi_generate_go(
+    name = "api_generated",
+    src = "//spec:ca",
+    server = False,
+    spec = False,
+)
+
+# exclude the *.gen.go files in the workspace it's only for editor compatibility.
+# gazelle:exclude *.gen.go
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "marker.go",
+        ":api_generated",  # keep
+    ],
+    importpath = "github.com/scionproto/scion/private/ca/api",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_github_oapi_codegen_runtime//:go_default_library",  # keep
+        "@com_github_oapi_codegen_runtime//types:go_default_library",  # keep
+    ],
+)

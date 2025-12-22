@@ -1,0 +1,24 @@
+{
+    "expiration": "2021-01-19T10:17:38.5Z",
+    "hops": [
+        {
+            "interface": 1,
+            "isd_as": "1-ff00:0:110"
+        },
+        {
+            "interface": 1,
+            "isd_as": "1-ff00:0:111"
+        },
+        {
+            "interface": 2,
+            "isd_as": "1-ff00:0:111"
+        },
+        {
+            "interface": 2,
+            "isd_as": "1-ff00:0:113"
+        }
+    ],
+    "id": "2d26c2907a1265f1c2926aec5d1495e9206cafc4d77cb09262a6c25186bb657c",
+    "last_updated": "2021-01-19T10:12:05Z",
+    "timestamp": "2021-01-19T10:12:01Z"
+}

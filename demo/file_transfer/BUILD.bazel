@@ -1,0 +1,10 @@
+load("//acceptance/common:topogen.bzl", "topogen_test")
+
+topogen_test(
+    name = "file_transfer",
+    src = "file_transfer.py",
+    args = [],
+    data = ["tc_setup.sh"],
+    gateway = True,
+    topo = "topo.topo",
+)

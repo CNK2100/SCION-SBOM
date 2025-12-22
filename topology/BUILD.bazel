@@ -1,0 +1,20 @@
+# gazelle:ignore
+
+filegroup(
+    name = "default",
+    srcs = ["default.topo"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "big",
+    srcs = ["testdata/big.topo"],
+    visibility = ["//visibility:public"],
+)
+
+exports_files(
+    [
+        "tiny.topo",
+        "tiny4.topo",
+    ],
+)

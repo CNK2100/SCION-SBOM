@@ -1,0 +1,49 @@
+load("@scion_python_deps//:requirements.bzl", "requirement")
+load("//tools/lint:py.bzl", "py_library", "py_test")
+
+package(default_visibility = ["//visibility:public"])
+
+py_library(
+    name = "base",
+    srcs = ["base.py"],
+    deps = [
+        requirement("plumbum"),
+        "docker",
+        "log",
+        "scion",
+    ],
+)
+
+py_library(
+    name = "docker",
+    srcs = ["docker.py"],
+    deps = [
+        requirement("plumbum"),
+    ],
+)
+
+py_library(
+    name = "log",
+    srcs = ["log.py"],
+)
+
+py_library(
+    name = "scion",
+    srcs = ["scion.py"],
+    deps = [
+        requirement("plumbum"),
+        requirement("toml"),
+        "log",
+        "//tools/topology:py_default_library",
+    ],
+)
+
+py_test(
+    name = "scion_test",
+    srcs = [
+        "scion_test.py",
+    ],
+    deps = [
+        "scion",
+    ],
+)

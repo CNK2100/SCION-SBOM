@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# This script generates the build options for Bazel
+
+ROOTDIR=$(dirname "$0")/..
+
+# Use the version reported by git, unless SCION_VERSION is set to override this.
+VERSION=${SCION_VERSION:-$($ROOTDIR/tools/git-version)}
+
+echo "STABLE_GIT_VERSION $VERSION"

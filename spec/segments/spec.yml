@@ -1,0 +1,199 @@
+openapi: "3.0.2"
+info:
+  description: SCION path segments API
+  title: API to retrieve SCION path segments.
+  version: "0.1.0"
+paths:
+  /segments:
+    get:
+      tags:
+      - segment
+      summary: List the SCION path segments
+      description: List the SCION path segments that are known to the service.
+        The results can be filtered by the start and end AS of the segment.
+        Inspect the individual segments for a more detailed view.
+      operationId: get-segments
+      parameters:
+      - in: query
+        description: Start ISD-AS of segment.
+        name: start_isd_as
+        example: 1-ff00:0:110
+        schema:
+          $ref: "../common/process.yml#/components/schemas/IsdAs"
+      - in: query
+        description: Terminal AS of segment.
+        name: end_isd_as
+        example: 2-ff00:0:210
+        schema:
+          $ref: "../common/process.yml#/components/schemas/IsdAs"
+      responses:
+        "200":
+          description: List of matching SCION path segments.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SegmentBrief"
+        "400":
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref:  "../common/base.yml#/components/schemas/Problem"
+  /segments/{segment-id}:
+    get:
+      tags:
+      - segment
+      summary: Get the SCION path segment description
+      description: Get the description of a specific SCION path segment.
+      operationId: get-segment
+      parameters:
+      - in: path
+        name: segment-id
+        required: true
+        schema:
+          $ref: "#/components/schemas/SegmentID"
+        style: simple
+        explode: false
+      responses:
+        "200":
+          description: SCION path segment information.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Segment"
+        "400":
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref:  "../common/base.yml#/components/schemas/Problem"
+    delete:
+      tags:
+      - segment
+      summary: Delete the SCION path segment
+      description: Delete the SCION path segment with the given segment ID.
+      operationId: delete-segment
+      parameters:
+      - in: path
+        name: segment-id
+        description: >
+          The segment ID of the path segment. If the input value is shorter than
+          a segment ID, it is considered a prefix and all matching path segments
+          are deleted. This is useful for deleting path segments based on their
+          logging ID, which is the 12 byte prefix of the actual segment ID.
+        required: true
+        schema:
+          $ref: "#/components/schemas/SegmentID"
+        style: simple
+        explode: false
+      responses:
+        "204":
+          description: SCION path segment deleted
+        "400":
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref:  "../common/base.yml#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref:  "../common/base.yml#/components/schemas/Problem"
+  /segments/{segment-id}/blob:
+    get:
+      tags:
+        - segment
+      summary: Get the SCION path segment blob
+      description: Get the SCION path segment encoded as PEM bytes blob.
+      operationId: get-segment-blob
+      parameters:
+      - in: path
+        name: segment-id
+        required: true
+        schema:
+          $ref: "#/components/schemas/SegmentID"
+        style: simple
+        explode: false
+      responses:
+        "200":
+          description: SCION path segment blob
+          content:
+            application/x-pem-file:
+              example: |
+                -----BEGIN PATH SEGMENT-----
+                SCIONPathSegment ...
+                -----END PATH SEGMENT-----
+        "400":
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref:  "../common/base.yml#/components/schemas/Problem"
+
+components:
+  schemas:
+    SegmentID:
+      title: Segment Identifier
+      type: string
+      example: fb45d44d
+      format: hex-string
+    SegmentBrief:
+      title: Brief SCION path segment description
+      type: object
+      required:
+        - id
+        - start_isd_as
+        - end_isd_as
+        - length
+      properties:
+        id:
+          $ref: "#/components/schemas/SegmentID"
+        start_isd_as:
+          $ref:  "../common/process.yml#/components/schemas/IsdAs"
+        end_isd_as:
+          $ref: "../common/process.yml#/components/schemas/IsdAs"
+        length:
+          description: "Length of the segment."
+          type: integer
+          example: 1
+    Segment:
+      title: SCION path segment description
+      type: object
+      required:
+        - id
+        - timestamp
+        - expiration
+        - last_updated
+        - hops
+      properties:
+        id:
+          $ref: "#/components/schemas/SegmentID"
+        timestamp:
+          type: string
+          format: date-time
+        expiration:
+          type: string
+          format: date-time
+        last_updated:
+          type: string
+          format: date-time
+        hops:
+          type: array
+          items:
+            $ref: "#/components/schemas/Hop"
+    Hop:
+      title: Path segment hop
+      type: object
+      required:
+        - isd_as
+        - interface
+      properties:
+        isd_as:
+          $ref: "../common/process.yml#/components/schemas/IsdAs"
+        interface:
+          type: integer
+          example: 42

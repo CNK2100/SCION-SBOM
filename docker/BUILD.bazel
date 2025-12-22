@@ -1,0 +1,79 @@
+load(":labels.bzl", "scion_labels")
+load(":scion_app.bzl", "scion_app_base", "scion_app_image")
+load(":tester.bzl", "scion_tester_image")
+
+filegroup(
+    name = "prod",
+    srcs = [
+        ":control.tarball",
+        ":daemon.tarball",
+        ":dispatcher.tarball",
+        ":gateway.tarball",
+        ":router.tarball",
+    ],
+)
+
+filegroup(
+    name = "test",
+    srcs = [
+        ":tester.tarball",
+    ],
+)
+
+scion_labels()
+
+scion_app_base()
+
+scion_app_image(
+    name = "router",
+    src = "//router/cmd/router",
+    cmd = [
+        "--config",
+        "/etc/scion/router.toml",
+    ],
+    entrypoint = ["/app/router"],
+)
+
+scion_app_image(
+    name = "control",
+    src = "//control/cmd/control",
+    cmd = [
+        "--config",
+        "/etc/scion/cs.toml",
+    ],
+    entrypoint = ["/app/control"],
+)
+
+scion_app_image(
+    name = "dispatcher",
+    src = "//dispatcher/cmd/dispatcher",
+    cmd = [
+        "--config",
+        "/etc/scion/disp.toml",
+    ],
+    entrypoint = ["/app/dispatcher"],
+)
+
+scion_app_image(
+    name = "daemon",
+    src = "//daemon/cmd/daemon",
+    cmd = [
+        "--config",
+        "/etc/scion/sd.toml",
+    ],
+    entrypoint = ["/app/daemon"],
+)
+
+scion_app_image(
+    name = "gateway",
+    src = "//gateway/cmd/gateway",
+    caps = "cap_net_admin+ei",
+    caps_binary = "/app/gateway",
+    cmd = [
+        "--config",
+        "/etc/scion/sig.toml",
+    ],
+    entrypoint = ["/app/gateway"],
+)
+
+scion_tester_image()

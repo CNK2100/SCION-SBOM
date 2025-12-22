@@ -1,0 +1,9 @@
+load("//tools/lint:write_source_files.bzl", "write_source_files")
+
+write_source_files(
+    name = "write_files",
+    files = {
+        "scion": "//scion/cmd/scion:gendocs",
+        "scion-pki": "//scion-pki/cmd/scion-pki:gendocs",
+    },
+)

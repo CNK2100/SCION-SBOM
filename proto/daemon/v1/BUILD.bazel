@@ -1,0 +1,15 @@
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+proto_library(
+    name = "daemon",
+    srcs = [
+        "daemon.proto",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//proto/drkey/v1:drkey",
+        "@protobuf//:duration_proto",
+        "@protobuf//:empty_proto",
+        "@protobuf//:timestamp_proto",
+    ],
+)

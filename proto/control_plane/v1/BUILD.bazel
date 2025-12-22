@@ -1,0 +1,20 @@
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+proto_library(
+    name = "control_plane",
+    srcs = [
+        "cppki.proto",
+        "drkey.proto",
+        "renewal.proto",
+        "seg.proto",
+        "seg_extensions.proto",
+        "svc_resolution.proto",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//proto/control_plane/experimental/v1:experimental",
+        "//proto/crypto/v1:crypto",
+        "//proto/drkey/v1:drkey",
+        "@protobuf//:timestamp_proto",
+    ],
+)

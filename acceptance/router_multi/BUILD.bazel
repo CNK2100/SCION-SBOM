@@ -1,0 +1,45 @@
+load("//acceptance/common:raw.bzl", "raw_test")
+
+exports_files([
+    "conf",
+    "test.py",
+    "pause.tar",
+])
+
+args = [
+    "--executable",
+    "braccept:$(location //tools/braccept)",
+    "--docker-image",
+    "$(location //docker:router.tarball)",
+    "--pause_tar",
+    "$(location //acceptance/router_multi:pause.tar)",
+]
+
+data = [
+    "pause.tar",
+    ":conf",
+    "//docker:router.tarball",
+    "//tools/braccept",
+]
+
+raw_test(
+    name = "test_bfd",
+    src = "test.py",
+    args = args + [
+        "--bfd",
+    ],
+    data = data,
+    homedir = "$(rootpath :conf)",
+    # This test uses sudo and accesses /var/run/netns.
+    local = True,
+)
+
+raw_test(
+    name = "test_nobfd",
+    src = "test.py",
+    args = args,
+    data = data,
+    homedir = "$(rootpath :conf)",
+    # This test uses sudo and accesses /var/run/netns.
+    local = True,
+)

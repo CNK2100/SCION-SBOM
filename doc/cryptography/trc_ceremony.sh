@@ -1,0 +1,1 @@
+../../tools/cryptoplayground/trc_ceremony.sh

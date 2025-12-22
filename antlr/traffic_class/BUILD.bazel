@@ -1,0 +1,30 @@
+load("@apple_rules_lint//lint:defs.bzl", "package_lint_config")
+load("@rules_go//go:def.bzl", "go_library")
+load("//tools/lint:go_config.bzl", "go_lint_config")
+
+go_lint_config(
+    name = "go_lint_config",
+    exclude_filter = [
+        "_lexer.go",
+    ],
+    visibility = [
+        "//visibility:public",
+    ],
+)
+
+package_lint_config({
+    "go": ":go_lint_config",
+})
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "trafficclass_base_listener.go",
+        "trafficclass_lexer.go",
+        "trafficclass_listener.go",
+        "trafficclass_parser.go",
+    ],
+    importpath = "github.com/scionproto/scion/antlr/traffic_class",
+    visibility = ["//visibility:public"],
+    deps = ["@com_github_antlr4_go_antlr_v4//:go_default_library"],
+)

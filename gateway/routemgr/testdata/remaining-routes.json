@@ -1,0 +1,40 @@
+{
+    "Routes": [
+        {
+            "Prefix": {
+                "IP": "192.168.1.0",
+                "Mask": "////AA=="
+            },
+            "NextHop": "10.11.12.13",
+            "Source": "",
+            "IA": "0-0"
+        },
+        {
+            "Prefix": {
+                "IP": "192.168.100.0",
+                "Mask": "////AA=="
+            },
+            "NextHop": "10.11.12.13",
+            "Source": "",
+            "IA": "0-0"
+        },
+        {
+            "Prefix": {
+                "IP": "dead::",
+                "Mask": "//////////8AAAAAAAAAAA=="
+            },
+            "NextHop": "deaf::beef",
+            "Source": "",
+            "IA": "0-0"
+        },
+        {
+            "Prefix": {
+                "IP": "dead::",
+                "Mask": "//////////+AAAAAAAAAAA=="
+            },
+            "NextHop": "deaf::beef",
+            "Source": "",
+            "IA": "0-0"
+        }
+    ]
+}

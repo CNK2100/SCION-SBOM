@@ -1,0 +1,20 @@
+networks:
+  bridge1:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: bridge1
+    ipam:
+      config:
+      - subnet: 242.254.100.0/24
+services:
+  topo_daemon_reload_daemon:
+    container_name: topo_daemon_reload_daemon
+    image: scion/acceptance/topo_daemon_reload:daemon
+    volumes:
+    - vol_topo_daemon_reload_certs:/certs:ro
+    networks:
+      bridge1:
+        ipv4_address: 242.254.100.2
+version: '2.4'
+volumes:
+  vol_topo_daemon_reload_certs: null

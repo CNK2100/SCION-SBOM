@@ -1,0 +1,1056 @@
+# GENERATED FILE DO NOT EDIT
+openapi: 3.0.2
+info:
+  description: API for the SCION Control Service
+  title: Control Service API
+  version: 0.0.1
+servers:
+  - url: http://{host}:{port}
+    variables:
+      host:
+        default: localhost
+      port:
+        default: '30452'
+tags:
+  - name: segment
+    description: Everything related to SCION path segments.
+  - name: cppki
+    description: Everything related to SCION CPPKI material.
+  - name: common
+    description: Common API exposed by SCION services.
+  - name: health
+    description: Endpoints related to the health status of services.
+paths:
+  /segments:
+    get:
+      tags:
+        - segment
+      summary: List the SCION path segments
+      description: List the SCION path segments that are known to the service. The results can be filtered by the start and end AS of the segment. Inspect the individual segments for a more detailed view.
+      operationId: get-segments
+      parameters:
+        - in: query
+          description: Start ISD-AS of segment.
+          name: start_isd_as
+          example: 1-ff00:0:110
+          schema:
+            $ref: '#/components/schemas/IsdAs'
+        - in: query
+          description: Terminal AS of segment.
+          name: end_isd_as
+          example: 2-ff00:0:210
+          schema:
+            $ref: '#/components/schemas/IsdAs'
+      responses:
+        '200':
+          description: List of matching SCION path segments.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SegmentBrief'
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /segments/{segment-id}:
+    get:
+      tags:
+        - segment
+      summary: Get the SCION path segment description
+      description: Get the description of a specific SCION path segment.
+      operationId: get-segment
+      parameters:
+        - in: path
+          name: segment-id
+          required: true
+          schema:
+            $ref: '#/components/schemas/SegmentID'
+          style: simple
+          explode: false
+      responses:
+        '200':
+          description: SCION path segment information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Segment'
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    delete:
+      tags:
+        - segment
+      summary: Delete the SCION path segment
+      description: Delete the SCION path segment with the given segment ID.
+      operationId: delete-segment
+      parameters:
+        - in: path
+          name: segment-id
+          description: |
+            The segment ID of the path segment. If the input value is shorter than a segment ID, it is considered a prefix and all matching path segments are deleted. This is useful for deleting path segments based on their logging ID, which is the 12 byte prefix of the actual segment ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/SegmentID'
+          style: simple
+          explode: false
+      responses:
+        '204':
+          description: SCION path segment deleted
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /segments/{segment-id}/blob:
+    get:
+      tags:
+        - segment
+      summary: Get the SCION path segment blob
+      description: Get the SCION path segment encoded as PEM bytes blob.
+      operationId: get-segment-blob
+      parameters:
+        - in: path
+          name: segment-id
+          required: true
+          schema:
+            $ref: '#/components/schemas/SegmentID'
+          style: simple
+          explode: false
+      responses:
+        '200':
+          description: SCION path segment blob
+          content:
+            application/x-pem-file:
+              example: |
+                -----BEGIN PATH SEGMENT-----
+                SCIONPathSegment ...
+                -----END PATH SEGMENT-----
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /signer:
+    get:
+      tags:
+        - cppki
+      summary: Prints information about the AS Certificate used to sign the control-plane message.
+      operationId: get-signer
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Signer'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /signer/blob:
+    get:
+      tags:
+        - cppki
+      summary: Get the certificate chain blob
+      description: |
+        Get the certificate chain blob encoded as PEM.
+      operationId: get-signer-chain
+      responses:
+        '200':
+          description: Certificate chain blob
+          content:
+            application/x-pem-file:
+              example: |
+                -----BEGIN CERTIFICATE-----
+                ASCertificate ...
+                -----END CERTIFICATE-----
+                -----BEGIN CERTIFICATE-----
+                CACertificate ...
+                -----END CERTIFICATE-----
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /ca:
+    get:
+      tags:
+        - cppki
+      summary: Information about the CA.
+      operationId: get-ca
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CA'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /trcs:
+    get:
+      tags:
+        - cppki
+      summary: List the TRCs
+      description: List the latest SCION Trust Root Configurations for each ISD that are known to the control service. The result can be filtered by ISD. Optionally, all TRCs can be requested instead of only the latest ones.
+      operationId: get-trcs
+      parameters:
+        - in: query
+          name: isd
+          schema:
+            type: array
+            items:
+              type: integer
+          style: form
+          explode: false
+        - in: query
+          name: all
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of applicable TRCs.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TRCBrief'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /trcs/isd{isd}-b{base}-s{serial}:
+    get:
+      tags:
+        - cppki
+      summary: Get the TRC
+      description: |
+        Get the SCION Trust Root Configuration.
+      operationId: get-trc
+      parameters:
+        - in: path
+          name: isd
+          required: true
+          schema:
+            type: integer
+            example: 42
+        - in: path
+          name: base
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - in: path
+          name: serial
+          required: true
+          schema:
+            type: integer
+            example: 3
+      responses:
+        '200':
+          description: TRC.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TRC'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /trcs/isd{isd}-b{base}-s{serial}/blob:
+    get:
+      tags:
+        - cppki
+      summary: Get the TRC blob
+      description: |
+        Get the SCION Trust Root Configuration as PEM encoded byte blob.
+      operationId: get-trc-blob
+      parameters:
+        - in: path
+          name: isd
+          required: true
+          schema:
+            type: integer
+            example: 42
+        - in: path
+          name: base
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - in: path
+          name: serial
+          required: true
+          schema:
+            type: integer
+            example: 3
+      responses:
+        '200':
+          description: TRC blob
+          content:
+            application/x-pem-file:
+              example: |
+                -----BEGIN TRC-----
+                ZjAwOjA6MTEwI ...
+                -----END TRC-----
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /certificates:
+    get:
+      tags:
+        - cppki
+      summary: List the certificate chains
+      description: |
+        List the currently active certificate chains that are known to the
+        control service. The result can be filtered by ISD-AS. Furthermore,
+        one can pass a particular point in time at which the certificate
+        chains are valid as input. A boolean can be provided to return all
+        certificates, regardless of their period of vailidity.
+      operationId: get-certificates
+      parameters:
+        - in: query
+          name: isd_as
+          schema:
+            $ref: '#/components/schemas/IsdAs'
+        - in: query
+          name: valid_at
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: all
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of certificate chains
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChainBrief'
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /certificates/{chain-id}:
+    get:
+      tags:
+        - cppki
+      summary: Get the certificate chain
+      description: |
+        Get the certificate chain for a given ChainID.
+      operationId: get-certificate
+      parameters:
+        - in: path
+          name: chain-id
+          required: true
+          schema:
+            $ref: '#/components/schemas/ChainID'
+      responses:
+        '200':
+          description: Certificate chain
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chain'
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /certificates/{chain-id}/blob:
+    get:
+      tags:
+        - cppki
+      summary: Get the certificate chain blob
+      description: |
+        Get the certificate chain encoded as PEM bytes blob for a given ChainID.
+      operationId: get-certificate-blob
+      parameters:
+        - in: path
+          name: chain-id
+          required: true
+          schema:
+            $ref: '#/components/schemas/ChainID'
+      responses:
+        '200':
+          description: Certificate chain blob
+          content:
+            application/x-pem-file:
+              example: |
+                -----BEGIN CERTIFICATE-----
+                ASCertificate ...
+                -----END CERTIFICATE-----
+                -----BEGIN CERTIFICATE-----
+                CACertificate ...
+                -----END CERTIFICATE-----
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /info:
+    get:
+      tags:
+        - common
+      summary: Basic information page about the control service process.
+      operationId: get-info
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /log/level:
+    get:
+      tags:
+        - common
+      summary: Get logging level
+      operationId: get-log-level
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogLevel'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    put:
+      tags:
+        - common
+      summary: Set logging level
+      operationId: set-log-level
+      requestBody:
+        description: Logging Level
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogLevel'
+        required: true
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogLevel'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /config:
+    get:
+      tags:
+        - common
+      summary: Prints the TOML configuration file.
+      operationId: get-config
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /topology:
+    get:
+      tags:
+        - common
+      summary: Prints the contents of the AS topology file.
+      operationId: get-topology
+      responses:
+        '200':
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topology'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /beacons:
+    get:
+      tags:
+        - beacon
+      summary: List the SCION beacons
+      description: List the SCION beacons that are known to the control service. The results can be filtered by the start AS, ingress interface and usage of the beacon. By default, all unexpired beacons are returned. This behavior can be changed with the `all` and `valid_at` parameters.
+      operationId: get-beacons
+      parameters:
+        - in: query
+          description: Start ISD-AS of beacons. The address can include wildcards (0) both for the ISD and AS identifier.
+          name: start_isd_as
+          example: 1-ff00:0:110
+          schema:
+            $ref: '#/components/schemas/IsdAs'
+        - in: query
+          description: Minimum allowed usages of the returned beacons. Only beacons that are allowed in all the usages in the list will be returned.
+          name: usages
+          example:
+            - up_registration
+            - down_registration
+          schema:
+            $ref: '#/components/schemas/BeaconUsages'
+        - in: query
+          description: Ingress interface id.
+          name: ingress_interface
+          example: 2
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 65535
+        - in: query
+          description: Timestamp at which returned beacons are valid. If unset then the current datetime is used. This only has an effect if `all=false`.
+          name: valid_at
+          example: '2021-11-25T12:20:50.52Z'
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          description: Include beacons regardless of expiration and creation time.
+          name: all
+          schema:
+            type: boolean
+            default: false
+        - in: query
+          description: Whether to reverse the sort order (ascending by default).
+          name: desc
+          schema:
+            default: false
+            type: boolean
+        - in: query
+          description: Attribute by which results are sorted. The value `start_isd_as` refers to the ISD-AS identifier of the first hop.
+          name: sort
+          example: expiration
+          schema:
+            type: string
+            default: last_updated
+            enum:
+              - expiration
+              - timestamp
+              - start_isd_as
+              - last_updated
+              - ingress_interface
+      responses:
+        '200':
+          description: List of matching SCION beacons.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  beacons:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Beacon'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /beacons/{segment-id}:
+    get:
+      tags:
+        - beacon
+      summary: Get the SCION beacon description
+      description: Get the description of a specific SCION beacon.
+      operationId: get-beacon
+      parameters:
+        - in: path
+          name: segment-id
+          description: The segment ID of the beacon segment. If the input value is shorter than a segment ID, but matches the prefix of the segment ID of exactly one beacon, then this beacon is returned.
+          required: true
+          schema:
+            $ref: '#/components/schemas/SegmentID'
+          style: simple
+          explode: false
+      responses:
+        '200':
+          description: SCION beacon information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BeaconGetResponseJson'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    delete:
+      tags:
+        - beacon
+      summary: Delete the SCION beacon
+      description: Delete the SCION beacon with the given segment ID.
+      operationId: delete-beacon
+      parameters:
+        - in: path
+          name: segment-id
+          description: |
+            The segment ID of the beacon segment. If the input value is shorter than a segment ID, it is considered a prefix and all matching beacons are deleted. This is useful for deleting beacons based on their logging ID, which is the 12 byte prefix of the actual segment ID.
+          required: true
+          schema:
+            $ref: '#/components/schemas/SegmentID'
+          style: simple
+          explode: false
+      responses:
+        '204':
+          description: Beacon deleted successfully.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/Internal'
+  /beacons/{segment-id}/blob:
+    get:
+      tags:
+        - beacon
+      summary: Get the SCION beacon blob
+      description: Get the SCION beacon blob in PEM encoding.
+      operationId: get-beacon-blob
+      parameters:
+        - in: path
+          name: segment-id
+          required: true
+          schema:
+            $ref: '#/components/schemas/SegmentID'
+          style: simple
+          explode: false
+      responses:
+        '200':
+          description: SCION beacon blob
+          content:
+            application/x-pem-file:
+              example: |
+                -----BEGIN PATH SEGMENT-----
+                SCIONBeacon...
+                -----END PATH SEGMENT-----
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /health:
+    get:
+      tags:
+        - health
+      summary: Indicate the service health.
+      description: Present the health of the service along with the executed health checks.
+      operationId: get-health
+      responses:
+        '200':
+          description: Service health information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+components:
+  schemas:
+    IsdAs:
+      title: ISD-AS Identifier
+      type: string
+      pattern: ^\d+-([a-f0-9]{1,4}:){2}([a-f0-9]{1,4})|\d+$
+      example: 1-ff00:0:110
+    SegmentID:
+      title: Segment Identifier
+      type: string
+      example: fb45d44d
+      format: hex-string
+    SegmentBrief:
+      title: Brief SCION path segment description
+      type: object
+      required:
+        - id
+        - start_isd_as
+        - end_isd_as
+        - length
+      properties:
+        id:
+          $ref: '#/components/schemas/SegmentID'
+        start_isd_as:
+          $ref: '#/components/schemas/IsdAs'
+        end_isd_as:
+          $ref: '#/components/schemas/IsdAs'
+        length:
+          description: Length of the segment.
+          type: integer
+          example: 1
+    Problem:
+      type: object
+      required:
+        - status
+        - title
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          description: A URI reference that uniquely identifies the problem type only in the context of the provided API. Opposed to the specification in RFC-7807, it is neither recommended to be dereferencable and point to a human-readable documentation nor globally unique for the problem type.
+          default: about:blank
+          example: /problem/connection-error
+        title:
+          type: string
+          description: A short summary of the problem type. Written in English and readable for engineers, usually not suited for non technical stakeholders and not localized.
+          example: Service Unavailable
+        status:
+          type: integer
+          description: The HTTP status code generated by the origin server for this occurrence of the problem.
+          minimum: 100
+          maximum: 599
+          example: 503
+        detail:
+          type: string
+          description: A human readable explanation specific to this occurrence of the problem that is helpful to locate the problem and give advice on how to proceed. Written in English and readable for engineers, usually not suited for non technical stakeholders and not localized.
+          example: Connection to database timed out
+        instance:
+          type: string
+          format: uri-reference
+          description: A URI reference that identifies the specific occurrence of the problem, e.g. by adding a fragment identifier or sub-path to the problem type. May be used to locate the root of this problem in the source code.
+          example: /problem/connection-error#token-info-read-timed-out
+    Hop:
+      title: Path segment hop
+      type: object
+      required:
+        - isd_as
+        - interface
+      properties:
+        isd_as:
+          $ref: '#/components/schemas/IsdAs'
+        interface:
+          type: integer
+          example: 42
+    Segment:
+      title: SCION path segment description
+      type: object
+      required:
+        - id
+        - timestamp
+        - expiration
+        - last_updated
+        - hops
+      properties:
+        id:
+          $ref: '#/components/schemas/SegmentID'
+        timestamp:
+          type: string
+          format: date-time
+        expiration:
+          type: string
+          format: date-time
+        last_updated:
+          type: string
+          format: date-time
+        hops:
+          type: array
+          items:
+            $ref: '#/components/schemas/Hop'
+    Validity:
+      title: Validity period
+      type: object
+      required:
+        - not_before
+        - not_after
+      properties:
+        not_before:
+          type: string
+          format: date-time
+          example: '2021-01-04T09:59:33Z'
+        not_after:
+          type: string
+          format: date-time
+          example: '2022-01-04T09:59:33Z'
+    SubjectKeyID:
+      type: string
+      format: spaced-hex-string
+      example: 89 B9 49 C2 2F 2F 9C DD 0D 2A 57 A9 DE 8E 2F 95 F3 09 10 D1
+    Certificate:
+      title: Certificate description
+      type: object
+      required:
+        - distinguished_name
+        - isd_as
+        - validity
+        - subject_key_algo
+        - subject_key_id
+      properties:
+        distinguished_name:
+          type: string
+        isd_as:
+          $ref: '#/components/schemas/IsdAs'
+        validity:
+          $ref: '#/components/schemas/Validity'
+        subject_key_algo:
+          type: string
+          example: ECDSA
+        subject_key_id:
+          $ref: '#/components/schemas/SubjectKeyID'
+    TRCID:
+      title: TRC Identifier
+      type: object
+      required:
+        - isd
+        - base_number
+        - serial_number
+      properties:
+        isd:
+          type: integer
+          example: 42
+        base_number:
+          type: integer
+          example: 1
+        serial_number:
+          type: integer
+          example: 3
+    Signer:
+      title: Control plane signer information
+      type: object
+      required:
+        - expiration
+        - as_certificate
+        - trc_id
+        - trc_in_grace_period
+      properties:
+        expiration:
+          description: Signer expiration imposed by chain and TRC validity.
+          type: string
+          format: date-time
+          example: '2022-01-04T09:59:33Z'
+        as_certificate:
+          $ref: '#/components/schemas/Certificate'
+        trc_id:
+          $ref: '#/components/schemas/TRCID'
+        trc_in_grace_period:
+          description: |
+            TRC used as trust root is in grace period, and the latest TRC cannot
+            be used as trust root.
+          type: boolean
+    StandardError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+      required:
+        - error
+    Subject:
+      type: object
+      required:
+        - isd_as
+      properties:
+        isd_as:
+          $ref: '#/components/schemas/IsdAs'
+    Policy:
+      type: object
+      required:
+        - chain_lifetime
+      properties:
+        chain_lifetime:
+          type: string
+          example: 72h0m0s
+    CA:
+      type: object
+      required:
+        - subject
+        - subject_key_id
+        - policy
+        - cert_validity
+      properties:
+        subject:
+          $ref: '#/components/schemas/Subject'
+        subject_key_id:
+          $ref: '#/components/schemas/SubjectKeyID'
+        policy:
+          $ref: '#/components/schemas/Policy'
+        cert_validity:
+          $ref: '#/components/schemas/Validity'
+    TRCBrief:
+      title: Brief TRC description
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: '#/components/schemas/TRCID'
+    TRC:
+      title: TRC description
+      type: object
+      required:
+        - id
+        - validity
+        - core_ases
+        - authoritative_ases
+        - description
+      properties:
+        id:
+          $ref: '#/components/schemas/TRCID'
+        validity:
+          $ref: '#/components/schemas/Validity'
+        core_ases:
+          type: array
+          items:
+            $ref: '#/components/schemas/IsdAs'
+        authoritative_ases:
+          type: array
+          items:
+            $ref: '#/components/schemas/IsdAs'
+        description:
+          type: string
+    ChainID:
+      title: Certificate chain Identifier
+      type: string
+      example: fa53a04a
+      format: hex-string
+    ChainBrief:
+      title: Brief certificate chain description
+      type: object
+      required:
+        - id
+        - subject
+        - issuer
+        - validity
+      properties:
+        id:
+          $ref: '#/components/schemas/ChainID'
+        subject:
+          $ref: '#/components/schemas/IsdAs'
+        issuer:
+          $ref: '#/components/schemas/IsdAs'
+        validity:
+          $ref: '#/components/schemas/Validity'
+    Chain:
+      title: Certificate chain description
+      type: object
+      required:
+        - subject
+        - issuer
+      properties:
+        subject:
+          $ref: '#/components/schemas/Certificate'
+        issuer:
+          $ref: '#/components/schemas/Certificate'
+    LogLevel:
+      type: object
+      properties:
+        level:
+          type: string
+          example: info
+          description: Logging level
+          enum:
+            - debug
+            - info
+            - error
+      required:
+        - level
+    Topology:
+      type: object
+      additionalProperties: true
+    BeaconUsage:
+      title: Allowed Beacon usage.
+      type: string
+      enum:
+        - up_registration
+        - down_registration
+        - core_registration
+        - propagation
+    BeaconUsages:
+      title: List of allowed beacon usages.
+      type: array
+      items:
+        $ref: '#/components/schemas/BeaconUsage'
+      uniqueItems: true
+    Beacon:
+      title: SCION path-segment construction beacon
+      allOf:
+        - $ref: '#/components/schemas/Segment'
+        - type: object
+          required:
+            - usages
+            - ingress_interface
+          properties:
+            usages:
+              $ref: '#/components/schemas/BeaconUsages'
+            ingress_interface:
+              description: Ingress interface of the beacon.
+              type: integer
+    BeaconGetResponseJson:
+      type: object
+      required:
+        - beacon
+      properties:
+        beacon:
+          $ref: '#/components/schemas/Beacon'
+    Status:
+      title: Health status of the service.
+      type: string
+      example: passing
+      enum:
+        - passing
+        - degraded
+        - failing
+    CheckData:
+      title: Free form additional data for the health check.
+      type: object
+      additionalProperties: true
+    Check:
+      title: Health Check.
+      type: object
+      required:
+        - name
+        - status
+        - data
+      properties:
+        name:
+          description: Name of health check.
+          type: string
+          example: valid signer available
+        status:
+          $ref: '#/components/schemas/Status'
+        data:
+          $ref: '#/components/schemas/CheckData'
+        reason:
+          description: Reason for check failure.
+          type: string
+          example: ''
+        detail:
+          description: Additional information.
+          type: string
+          example: ''
+    Health:
+      title: Summary of health status and checks.
+      type: object
+      required:
+        - status
+        - checks
+      properties:
+        status:
+          $ref: '#/components/schemas/Status'
+        checks:
+          description: List of health checks.
+          type: array
+          items:
+            $ref: '#/components/schemas/Check'
+    HealthResponse:
+      title: Service health information.
+      type: object
+      required:
+        - health
+      properties:
+        health:
+          $ref: '#/components/schemas/Health'
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardError'
+    Internal:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardError'

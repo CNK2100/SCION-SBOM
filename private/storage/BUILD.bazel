@@ -1,0 +1,34 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "sample.go",
+        "storage.go",
+    ],
+    importpath = "github.com/scionproto/scion/private/storage",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//control/beacon:go_default_library",
+        "//pkg/addr:go_default_library",
+        "//pkg/drkey:go_default_library",
+        "//pkg/log:go_default_library",
+        "//pkg/private/serrors:go_default_library",
+        "//private/config:go_default_library",
+        "//private/pathdb:go_default_library",
+        "//private/periodic:go_default_library",
+        "//private/revcache:go_default_library",
+        "//private/revcache/memrevcache:go_default_library",
+        "//private/storage/beacon:go_default_library",
+        "//private/storage/beacon/sqlite:go_default_library",
+        "//private/storage/cleaner:go_default_library",
+        "//private/storage/db:go_default_library",
+        "//private/storage/drkey/level1/sqlite:go_default_library",
+        "//private/storage/drkey/level2/sqlite:go_default_library",
+        "//private/storage/drkey/secret/sqlite:go_default_library",
+        "//private/storage/path/sqlite:go_default_library",
+        "//private/storage/trust:go_default_library",
+        "//private/storage/trust/sqlite:go_default_library",
+        "//private/trust:go_default_library",
+    ],
+)

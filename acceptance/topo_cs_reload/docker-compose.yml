@@ -1,0 +1,19 @@
+networks:
+  bridge1:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: bridge1
+    ipam:
+      config:
+      - subnet: 242.253.100.0/24
+services:
+  topo_cs_reload_control_srv:
+    image: scion/acceptance/topo_cs_reload:control
+    volumes:
+    - "${TOPO_CS_RELOAD_CONFIG_DIR}/certs:/certs:ro"
+    - "${TOPO_CS_RELOAD_CONFIG_DIR}/keys:/keys:ro"
+    - "${TOPO_CS_RELOAD_CONFIG_DIR}/crypto:/crypto:ro"
+    networks:
+      bridge1:
+        ipv4_address: 242.253.100.2
+version: '2.4'

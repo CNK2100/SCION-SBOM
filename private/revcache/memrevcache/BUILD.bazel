@@ -1,0 +1,25 @@
+load("@rules_go//go:def.bzl", "go_library")
+load("//tools:go.bzl", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["memrevcache.go"],
+    importpath = "github.com/scionproto/scion/private/revcache/memrevcache",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/private/ctrl/path_mgmt:go_default_library",
+        "//private/revcache:go_default_library",
+        "@at_zgo_zcache_v2//:go_default_library",
+    ],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = ["memrevcache_test.go"],
+    embed = [":go_default_library"],
+    deps = [
+        "//pkg/private/ctrl/path_mgmt:go_default_library",
+        "//private/revcache:go_default_library",
+        "//private/revcache/revcachetest:go_default_library",
+    ],
+)

@@ -1,0 +1,14 @@
+load("//tools:go.bzl", "go_test")
+
+go_test(
+    name = "go_default_test",
+    srcs = ["bfd_test.go"],
+    data = ["//pkg/slayers:testdata"],
+    deps = [
+        "//pkg/slayers:go_default_library",
+        "@com_github_gopacket_gopacket//:go_default_library",
+        "@com_github_gopacket_gopacket//layers:go_default_library",
+        "@com_github_stretchr_testify//assert:go_default_library",
+        "@com_github_stretchr_testify//require:go_default_library",
+    ],
+)

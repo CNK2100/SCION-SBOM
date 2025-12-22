@@ -1,0 +1,30 @@
+load("@rules_go//go:def.bzl", "go_library")
+load("//tools:go.bzl", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "legacy_metrics.go",
+        "periodic.go",
+    ],
+    importpath = "github.com/scionproto/scion/private/periodic",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/log:go_default_library",
+        "//pkg/metrics/v2:go_default_library",
+        "@com_github_iancoleman_strcase//:go_default_library",
+        "@com_github_opentracing_opentracing_go//:go_default_library",
+        "@com_github_prometheus_client_golang//prometheus:go_default_library",
+    ],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = ["periodic_test.go"],
+    deps = [
+        ":go_default_library",
+        "//pkg/metrics/v2:go_default_library",
+        "//pkg/private/xtest:go_default_library",
+        "@com_github_stretchr_testify//assert:go_default_library",
+    ],
+)

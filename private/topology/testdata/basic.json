@@ -1,0 +1,89 @@
+{
+  "timestamp": 168570123,
+  "timestamp_human": "1975-05-06 01:02:03.000000+0000",
+  "isd_as": "1-ff00:0:311",
+  "mtu": 1472,
+  "dispatched_ports": "1024-65535",
+  "attributes": [],
+  "border_routers": {
+    "br1-ff00:0:311-1": {
+      "internal_addr": "10.1.0.1:0",
+      "interfaces": {
+        "1": {
+          "underlay": {
+            "local": "192.0.2.1:44997",
+            "remote": "192.0.2.2:44998"
+          },
+          "isd_as": "1-ff00:0:312",
+          "link_to": "PARENT",
+          "mtu": 1472,
+          "bfd": {
+            "detect_mult": 10,
+            "desired_min_tx_interval": "10ms",
+            "required_min_rx_interval": "15ms"
+          }
+        },
+        "3": {
+          "underlay": {
+            "local": "[2001:db8:a0b:12f0::1]:44997",
+            "remote": "[2001:db8:a0b:12f0::2]:44998"
+          },
+          "isd_as": "1-ff00:0:314",
+          "link_to": "CHILD",
+          "mtu": 4430
+        },
+        "8": {
+          "underlay": {
+            "local": ":44997",
+            "remote": "192.0.2.3:44998"
+          },
+          "isd_as": "1-ff00:0:313",
+          "link_to": "PEER",
+          "mtu": 1480
+        }
+      }
+    },
+    "br1-ff00:0:311-2": {
+      "internal_addr": "[2001:db8:a0b:12f0::1%some-internal-zone]:0",
+      "interfaces": {
+        "11": {
+          "underlay": {
+            "local": "[2001:db8:a0b:12f0::1%some-local-zone]:44897",
+            "remote": "[2001:db8:a0b:12f0::2%some-remote-zone]:44898"
+          },
+          "isd_as": "1-ff00:0:314",
+          "link_to": "CHILD",
+          "mtu": 4430
+        }
+      }
+    }
+  },
+  "control_service": {
+    "cs1-ff00:0:311-2": {
+      "addr": "127.0.0.67:30073"
+    },
+    "cs1-ff00:0:311-3": {
+      "addr": "[2001:db8:f00:b43::1]:23421"
+    },
+    "cs1-ff00:0:311-4": {
+      "addr": "[2001:db8:f00:b43::1%some-zone]:23425"
+    }
+  },
+  "discovery_service": {
+    "ds1-ff00:0:311-2": {
+      "addr": "127.0.0.67:30073"
+    }
+  },
+  "sigs": {
+    "sig1-ff00:0:311-1": {
+      "ctrl_addr": "127.0.0.82:30100",
+      "data_addr": "127.0.0.82:30101",
+      "allow_interfaces": [1,3,5]
+    },
+    "sig2-ff00:0:311-1": {
+      "ctrl_addr": "[2001:db8:f00:b43::1%some-zone]:23425",
+      "data_addr": "[2001:db8:f00:b43::1%some-zone]:30101",
+      "probe_addr": "[2001:db8:f00:b43::2%some-zone]:23455"
+    }
+  }
+}

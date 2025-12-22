@@ -1,0 +1,44 @@
+openapi: "3.0.2"
+info:
+  title: SCION Daemon API
+  description: Service API for the SCION Daemon
+  version: "0.0.1"
+servers:
+  - url: http://{host}:{port}/api/v1
+    variables:
+      host:
+        default: "localhost"
+      port:
+        default: "31152"
+tags:
+  - name: common
+    description: Common API exposed by SCION services.
+  - name: segment
+    description: Everything related to SCION path segments.
+  - name: cppki
+    description: Everything related to SCION CPPKI material.
+paths:
+  /info:
+    $ref: "../common/process.yml#/paths/~1info"
+  /log/level:
+    $ref: "../common/process.yml#/paths/~1log~1level"
+  /config:
+    $ref: "../common/process.yml#/paths/~1config"
+  /segments:
+    $ref: "../segments/spec.yml#/paths/~1segments"
+  /segments/{segment-id}:
+    $ref: "../segments/spec.yml#/paths/~1segments~1{segment-id}"
+  /segments/{segment-id}/blob:
+    $ref: "../segments/spec.yml#/paths/~1segments~1{segment-id}~1blob"
+  /trcs:
+    $ref: "../cppki/spec.yml#/paths/~1trcs"
+  /trcs/isd{isd}-b{base}-s{serial}:
+    $ref: "../cppki/spec.yml#/paths/~1trcs~1isd{isd}-b{base}-s{serial}"
+  /trcs/isd{isd}-b{base}-s{serial}/blob:
+    $ref: "../cppki/spec.yml#/paths/~1trcs~1isd{isd}-b{base}-s{serial}~1blob"
+  /certificates:
+    $ref: "../cppki/spec.yml#/paths/~1certificates"
+  /certificates/{chain-id}:
+    $ref: "../cppki/spec.yml#/paths/~1certificates~1{chain-id}"
+  /certificates/{chain-id}/blob:
+    $ref: "../cppki/spec.yml#/paths/~1certificates~1{chain-id}~1blob"

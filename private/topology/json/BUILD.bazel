@@ -1,0 +1,29 @@
+load("@rules_go//go:def.bzl", "go_library")
+load("//tools:go.bzl", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["json.go"],
+    importpath = "github.com/scionproto/scion/private/topology/json",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/log:go_default_library",
+        "//pkg/private/serrors:go_default_library",
+        "//pkg/private/util:go_default_library",
+        "//pkg/segment/iface:go_default_library",
+    ],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = ["json_test.go"],
+    data = glob(["testdata/**"]),
+    deps = [
+        ":go_default_library",
+        "//pkg/private/util:go_default_library",
+        "//pkg/private/xtest:go_default_library",
+        "//pkg/segment/iface:go_default_library",
+        "@com_github_stretchr_testify//assert:go_default_library",
+        "@com_github_stretchr_testify//require:go_default_library",
+    ],
+)

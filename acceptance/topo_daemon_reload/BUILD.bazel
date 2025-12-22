@@ -1,0 +1,61 @@
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load")
+load("@rules_pkg//:pkg.bzl", "pkg_tar")
+load("//tools:go.bzl", "go_test")
+
+go_test(
+    name = "go_default_test",
+    srcs = ["reload_test.go"],
+    data = [
+        "testdata/topology_reload.json",
+        ":daemon.tar",
+        ":docker-compose.yml",
+        "//acceptance/topo_common:invalid_reloads",
+        "//acceptance/topo_common:topology",
+    ],
+    tags = [
+        "exclusive",
+        "integration",
+    ],
+    deps = [
+        "//private/topology:go_default_library",
+        "@com_github_stretchr_testify//assert:go_default_library",
+        "@com_github_stretchr_testify//require:go_default_library",
+    ],
+)
+
+# daemon container
+oci_load(
+    name = "daemon",
+    format = "docker",
+    image = ":daemon_image",
+    repo_tags = ["scion/" + package_name() + ":daemon"],
+)
+
+filegroup(
+    name = "daemon.tar",
+    srcs = [":daemon"],
+    output_group = "tarball",
+)
+
+oci_image(
+    name = "daemon_image",
+    base = "//docker:daemon",
+    cmd = [
+        "--config",
+        "/sd.toml",
+    ],
+    entrypoint = ["/app/daemon"],
+    tars = [
+        ":daemon_data",
+    ],
+)
+
+pkg_tar(
+    name = "daemon_data",
+    srcs = [
+        "testdata/sd.toml",
+        "testdata/topology_reload.json",
+        "//acceptance/topo_common:invalid_reloads",
+        "//acceptance/topo_common:topology",
+    ],
+)

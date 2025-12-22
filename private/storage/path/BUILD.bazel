@@ -1,0 +1,9 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["path.go"],
+    importpath = "github.com/scionproto/scion/private/storage/path",
+    visibility = ["//visibility:public"],
+    deps = ["//pkg/segment:go_default_library"],
+)

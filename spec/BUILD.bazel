@@ -1,0 +1,105 @@
+load("//private/mgmtapi:api.bzl", "openapi_bundle")
+load("//tools/lint:write_source_files.bzl", "write_source_files")
+
+openapi_bundle(
+    name = "control",
+    srcs = [
+        "//spec/common:files",
+        "//spec/control:files",
+        "//spec/cppki:spec",
+        "//spec/health:spec",
+        "//spec/segments:spec",
+    ],
+    entrypoint = "//spec/control:spec",
+    visibility = ["//visibility:public"],
+)
+
+openapi_bundle(
+    name = "ca",
+    srcs = [
+        "//spec/ca:files",
+    ],
+    entrypoint = "//spec/ca:spec",
+    visibility = ["//visibility:public"],
+)
+
+openapi_bundle(
+    name = "dispatcher",
+    srcs = [
+        "//spec/common:files",
+    ],
+    entrypoint = "//spec/dispatcher:spec",
+    visibility = ["//visibility:public"],
+)
+
+openapi_bundle(
+    name = "daemon",
+    srcs = [
+        "//spec/common:files",
+        "//spec/cppki:spec",
+        "//spec/segments:spec",
+    ],
+    entrypoint = "//spec/daemon:spec",
+    visibility = ["//visibility:public"],
+)
+
+openapi_bundle(
+    name = "gateway",
+    srcs = [
+        "//spec/common:files",
+    ],
+    entrypoint = "//spec/gateway:spec",
+    visibility = ["//visibility:public"],
+)
+
+openapi_bundle(
+    name = "router",
+    srcs = [
+        "//spec/common:files",
+        "//spec/router:files",
+    ],
+    entrypoint = "//spec/router:spec",
+    visibility = ["//visibility:public"],
+)
+
+openapi_bundle(
+    name = "segments",
+    srcs = [
+        "//spec/common:files",
+    ],
+    entrypoint = "//spec/segments:spec",
+    visibility = ["//visibility:public"],
+)
+
+openapi_bundle(
+    name = "cppki",
+    srcs = [
+        "//spec/common:files",
+    ],
+    entrypoint = "//spec/cppki:spec",
+    visibility = ["//visibility:public"],
+)
+
+openapi_bundle(
+    name = "health",
+    srcs = [
+        "//spec/common:files",
+    ],
+    entrypoint = "//spec/health:spec",
+    visibility = ["//visibility:public"],
+)
+
+write_source_files(
+    name = "write_files",
+    files = {
+        "control.gen.yml": ":control",
+        "ca.gen.yml": ":ca",
+        "dispatcher.gen.yml": ":dispatcher",
+        "daemon.gen.yml": ":daemon",
+        "gateway.gen.yml": ":gateway",
+        "router.gen.yml": ":router",
+        "segments.gen.yml": ":segments",
+        "cppki.gen.yml": ":cppki",
+        "health.gen.yml": ":health",
+    },
+)

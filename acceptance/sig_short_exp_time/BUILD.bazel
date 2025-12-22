@@ -1,0 +1,15 @@
+sh_test(
+    name = "sig_short_exp_time_test",
+    size = "small",
+    srcs = ["test"],
+    data = [
+        "docker-compose.yml",
+        "//docker:gateway.tarball",
+        "//tools/udpproxy:udpproxy.tarball",
+    ] + glob(["testdata/**"]),
+    tags = [
+        "exclusive",
+        "integration",
+        "manual",  # skip this test, it's broken #3935
+    ],
+)

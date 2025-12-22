@@ -1,0 +1,199 @@
+paths:
+  /beacons:
+    get:
+      tags:
+      - beacon
+      summary: List the SCION beacons
+      description: >-
+        List the SCION beacons that are known to the control service.
+        The results can be filtered by the start AS, ingress interface and usage of the beacon.
+        By default, all unexpired beacons are returned. This behavior can be changed with the
+        `all` and `valid_at` parameters.
+      operationId: get-beacons
+      parameters:
+      - in: query
+        description: >-
+          Start ISD-AS of beacons.
+          The address can include wildcards (0) both for the ISD and AS identifier.
+        name: start_isd_as
+        example: 1-ff00:0:110
+        schema:
+          $ref: "../common/process.yml#/components/schemas/IsdAs"
+      - in: query
+        description: >-
+          Minimum allowed usages of the returned beacons.
+          Only beacons that are allowed in all the usages in the list will be returned.
+        name: usages
+        example: [up_registration, down_registration]
+        schema:
+          $ref: "#/components/schemas/BeaconUsages"
+      - in: query
+        description: Ingress interface id.
+        name: ingress_interface
+        example: 2
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 65535
+      - in: query
+        description: >-
+          Timestamp at which returned beacons are valid. If unset then the current datetime is used.
+          This only has an effect if `all=false`.
+        name: valid_at
+        example: 2021-11-25T12:20:50.52Z
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        description: Include beacons regardless of expiration and creation time.
+        name: all
+        schema:
+          type: boolean
+          default: false
+      - in: query
+        description: Whether to reverse the sort order (ascending by default).
+        name: desc
+        schema:
+          default: false
+          type: boolean
+      - in: query
+        description: Attribute by which results are sorted.
+          The value `start_isd_as` refers to the ISD-AS identifier of the first hop.
+        name: sort
+        example: expiration
+        schema:
+          type: string
+          default: last_updated
+          enum:
+            - expiration
+            - timestamp
+            - start_isd_as
+            - last_updated
+            - ingress_interface
+      responses:
+        "200":
+          description: List of matching SCION beacons.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  beacons:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Beacon"
+        "400":
+          $ref: "../common/base.yml#/components/responses/BadRequest"
+  /beacons/{segment-id}:
+    get:
+      tags:
+      - beacon
+      summary: Get the SCION beacon description
+      description: Get the description of a specific SCION beacon.
+      operationId: get-beacon
+      parameters:
+      - in: path
+        name: segment-id
+        description: The segment ID of the beacon segment.
+          If the input value is shorter than a segment ID, but matches the prefix of
+          the segment ID of exactly one beacon, then this beacon is returned.
+        required: true
+        schema:
+          $ref: "../segments/spec.yml#/components/schemas/SegmentID"
+        style: simple
+        explode: false
+      responses:
+        "200":
+          description: SCION beacon information.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BeaconGetResponseJson"
+        "400":
+          $ref: "../common/base.yml#/components/responses/BadRequest"
+    delete:
+      tags:
+      - beacon
+      summary: Delete the SCION beacon
+      description: Delete the SCION beacon with the given segment ID.
+      operationId: delete-beacon
+      parameters:
+      - in: path
+        name: segment-id
+        description: >
+          The segment ID of the beacon segment. If the input value is shorter
+          than a segment ID, it is considered a prefix and all matching beacons
+          are deleted. This is useful for deleting beacons based on their
+          logging ID, which is the 12 byte prefix of the actual segment ID.
+        required: true
+        schema:
+          $ref: "../segments/spec.yml#/components/schemas/SegmentID"
+        style: simple
+        explode: false
+      responses:
+        "204":
+          description: Beacon deleted successfully.
+        "400":
+          $ref: "../common/base.yml#/components/responses/BadRequest"
+        "500":
+          $ref: "../common/base.yml#/components/responses/Internal"
+  /beacons/{segment-id}/blob:
+    get:
+      tags:
+        - beacon
+      summary: Get the SCION beacon blob
+      description: Get the SCION beacon blob in PEM encoding.
+      operationId: get-beacon-blob
+      parameters:
+        - in: path
+          name: segment-id
+          required: true
+          schema:
+            $ref: "../segments/spec.yml#/components/schemas/SegmentID"
+          style: simple
+          explode: false
+      responses:
+        "200":
+          description: SCION beacon blob
+          content:
+            application/x-pem-file:
+              example: |
+                -----BEGIN PATH SEGMENT-----
+                SCIONBeacon...
+                -----END PATH SEGMENT-----
+        "400":
+          $ref: "../common/base.yml#/components/responses/BadRequest"
+components:
+  schemas:
+    BeaconUsage:
+      title: Allowed Beacon usage.
+      type: string
+      enum: [up_registration, down_registration, core_registration, propagation]
+    BeaconUsages:
+      # internally this is represented with one value of type beacon.Usage
+      title: List of allowed beacon usages.
+      type: array
+      items:
+        $ref: "#/components/schemas/BeaconUsage"
+      uniqueItems: true
+    Beacon:
+      title: SCION path-segment construction beacon
+      allOf:
+        - $ref: "../segments/spec.yml#/components/schemas/Segment"
+        - type: object
+          required:
+            - usages
+            - ingress_interface
+          properties:
+            usages:
+              $ref: "#/components/schemas/BeaconUsages"
+            ingress_interface:
+              description: Ingress interface of the beacon.
+              type: integer
+    BeaconGetResponseJson:
+      type: object
+      required:
+        - beacon
+      properties:
+        beacon:
+          $ref: "#/components/schemas/Beacon"

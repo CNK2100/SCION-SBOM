@@ -1,0 +1,13 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["utils.go"],
+    importpath = "github.com/scionproto/scion/private/storage/utils",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/private/serrors:go_default_library",
+        "//pkg/scrypto/signed:go_default_library",
+        "//pkg/segment:go_default_library",
+    ],
+)

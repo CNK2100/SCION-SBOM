@@ -15,7 +15,7 @@ can be downloaded from the [latest release](https://github.com/scionproto/scion/
 
 ### Building on Ubuntu environment
 
-Use the [documentation site](https://docs.scion.org/en/latest/dev/setup.html) for build instructions.
+Use the [documentation site](https://docs.scion.org/en/latest/dev/setup.html) for build instructions.\
 Below is the environment information used to test building.
 
 - OS: Ubuntu 24.04 VM on VirtualBox
@@ -34,23 +34,23 @@ Below is the environment information used to test building.
 
 ## RBOM Implementation
 
-All modified code is labeled with the phrase _"rbomcode"_.
+All modified code is labeled with the phrase _"rbomcode"_.\
 Below are the modified files, with some notable functionalities.
 
-- *pkg/proto/control\_plane/seg\_extensions.pb.go*
-- *pkg/proto/daemon/daemon.pb.go*
+- pkg/proto/control\_plane/seg\_extensions.pb.go
+- pkg/proto/daemon/daemon.pb.go*
 Files generated using _.proto_ definitions below. **Do not edit these files!**
 
-- *proto/control\_plane/v1/seg\_extensions.proto*
-- *proto/daemon/v1/daemon.proto*
+- proto/control\_plane/v1/seg\_extensions.proto
+- proto/daemon/v1/daemon.proto
 _.proto_ files are data schemes where fields are defined.
 
-- *control/beaconing/staticinfo_config.go*
-- *control/beaconing/staticinfo\_config\_test.go*
-Structure of RBOM information is defined in _staticinfo\_config.go_,
+- control/beaconing/staticinfo_config.go
+- control/beaconing/staticinfo\_config\_test.go
+Structure of RBOM information is defined in _staticinfo\_config.go_,\
 and test values are assigned in _staticinfo\_config\_test.go_.
 
-- *scion/showpaths/showpaths.go*
+- scion/showpaths/showpaths.go
 Code for returning human readable output.
 
 **Other files:**

@@ -20,7 +20,7 @@ Below is the environment information used to test building.
 
 - OS: Ubuntu 24.04 VM on VirtualBox
 - CPU: 4
-- RAM: 8KB
+- RAM: 8GB
 - Disk size: 40GB 
 
 ### Errors
